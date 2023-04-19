@@ -9,12 +9,20 @@ const { PORT = 3000 } = process.env;
 mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-})
+});
 
-app.use(express.json())
+app.use((req, res, next) => {
+  req.user = {
+    _id: '643fbfc42a3165704f7c4a34', // вставьте сюда _id созданного в предыдущем пункте пользователя
+  };
+
+  next();
+});
+
+app.use(express.json());
 app.use(usersRouter);
 
-app.use('/users', require('./routes/users'))
+app.use('/users', require('./routes/users'));
 
 app.listen(PORT, () => {
   console.log(`Сервер запущен на порту ${PORT}`);
