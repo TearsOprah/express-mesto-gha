@@ -1,5 +1,5 @@
-const User = require('../models/user');
 const mongoose = require('mongoose');
+const User = require('../models/user');
 
 const ERROR_CODE_BAD_REQUEST = 400;
 const ERROR_CODE_NOT_FOUND = 404;
@@ -14,7 +14,7 @@ const getUsers = (req, res) => {
 
 // получение пользователя по id
 const getUserById = (req, res) => {
-  const userId = req.params.userId;
+  const { userId } = req.params;
 
   // проверка на валидность ObjectId
   if (!mongoose.Types.ObjectId.isValid(userId)) {
@@ -29,6 +29,7 @@ const getUserById = (req, res) => {
       return res.send(user);
     })
     .catch(() => res.status(ERROR_CODE_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка по умолчанию' }));
+  return res;
 };
 
 // создание нового пользователя
@@ -51,7 +52,8 @@ const updateUserProfile = (req, res) => {
   const userId = req.user._id;
 
   // Проверка на длину полей name и about
-  if (!name || !about || name.length < 2 || name.length > 30 || about.length < 2 || about.length > 30) {
+  if (!name || !about
+    || name.length < 2 || name.length > 30 || about.length < 2 || about.length > 30) {
     return res.status(ERROR_CODE_BAD_REQUEST).send({ message: 'Длина полей name и about должна быть от 2 до 30 символов' });
   }
 
@@ -68,6 +70,7 @@ const updateUserProfile = (req, res) => {
       }
       return res.status(ERROR_CODE_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка по умолчанию' });
     });
+  return res;
 };
 
 // обновление аватара

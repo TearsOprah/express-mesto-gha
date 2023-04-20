@@ -1,5 +1,5 @@
-const Card = require('../models/card');
 const mongoose = require('mongoose');
+const Card = require('../models/card');
 
 const ERROR_CODE_BAD_REQUEST = 400;
 const ERROR_CODE_NOT_FOUND = 404;
@@ -48,6 +48,7 @@ const deleteCard = (req, res) => {
       return res.status(STATUS_OK).json({ card });
     })
     .catch(() => res.status(ERROR_CODE_INTERNAL_SERVER_ERROR).json({ message: 'Ошибка по умолчанию' }));
+  return res;
 };
 
 // ставим лайк
