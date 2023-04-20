@@ -43,4 +43,19 @@ const updateUserProfile = (req, res) => {
     .catch((err) => res.status(500).send({ message: err.message }));
 };
 
-module.exports = { createUser, getUsers, getUserById, updateUserProfile };
+// обновление аватара
+const updateUserAvatar = (req, res) => {
+  const { avatar } = req.body;
+  const userId = req.user._id;
+
+  User.findByIdAndUpdate(userId, { avatar }, { new: true })
+    .then((user) => {
+      if (!user) {
+        return res.status(404).send({ message: 'Пользователь не найден' })
+      }
+      return res.send(user);
+    })
+    .catch((err) => res.status(500).send({ message: err.message }));
+};
+
+module.exports = { createUser, getUsers, getUserById, updateUserProfile, updateUserAvatar };
