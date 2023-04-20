@@ -4,7 +4,7 @@ const Card = require('../models/card');
 const getAllCards = (req, res) => {
   Card.find()
     .then((cards) => res.send(cards))
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
 };
 
 // контроллер для создания новой карточки
@@ -17,7 +17,10 @@ const createCard = (req, res) => {
       res.status(201).json({ card });
     })
     .catch((err) => {
-      res.status(500).json({ message: err.message });
+      if (err.name === 'ValidationError') {
+        return res.status(400).json({ message: 'Переданы некорректные данные' });
+      }
+      return res.status(500).json({ message: 'Ошибка сервера' });
     });
 };
 
@@ -32,7 +35,7 @@ const deleteCard = (req, res) => {
       }
       return res.status(200).json({ card });
     })
-    .catch((err) => res.status(500).json({ message: err.message }));
+    .catch(() => res.status(500).json({ message: 'Ошибка сервера' }));
 };
 
 // ставим лайк
@@ -51,7 +54,7 @@ const likeCard = (req, res) => {
       }
       return res.send(card);
     })
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
 };
 
 // удаление лайка
@@ -70,7 +73,7 @@ const dislikeCard = (req, res) => {
       }
       return res.send(card);
     })
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
 };
 
 module.exports = {
