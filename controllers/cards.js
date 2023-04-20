@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
 const Card = require('../models/card');
-
-const ERROR_CODE_BAD_REQUEST = 400;
-const ERROR_CODE_NOT_FOUND = 404;
-const ERROR_CODE_INTERNAL_SERVER_ERROR = 500;
-const STATUS_OK = 200;
-const STATUS_CREATED = 201;
+const {
+  ERROR_CODE_INTERNAL_SERVER_ERROR,
+  ERROR_CODE_BAD_REQUEST,
+  ERROR_CODE_NOT_FOUND,
+  STATUS_CREATED,
+} = require('../http-status-codes');
 
 // контроллер получения всех карточек
 const getAllCards = (req, res) => {
@@ -45,7 +45,7 @@ const deleteCard = (req, res) => {
       if (!card) {
         return res.status(ERROR_CODE_NOT_FOUND).json({ message: 'Карточка с указанным _id не найдена' });
       }
-      return res.status(STATUS_OK).json({ card });
+      return res.json({ card });
     })
     .catch(() => res.status(ERROR_CODE_INTERNAL_SERVER_ERROR).json({ message: 'Ошибка по умолчанию' }));
   return res;

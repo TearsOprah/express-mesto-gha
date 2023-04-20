@@ -1,9 +1,6 @@
 const mongoose = require('mongoose');
 const User = require('../models/user');
-
-const ERROR_CODE_BAD_REQUEST = 400;
-const ERROR_CODE_NOT_FOUND = 404;
-const ERROR_CODE_INTERNAL_SERVER_ERROR = 500;
+const { ERROR_CODE_INTERNAL_SERVER_ERROR, ERROR_CODE_BAD_REQUEST, ERROR_CODE_NOT_FOUND } = require('../http-status-codes');
 
 // получение всех пользователей
 const getUsers = (req, res) => {

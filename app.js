@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
+const { ERROR_CODE_NOT_FOUND } = require('./http-status-codes');
 
 const app = express();
 const { PORT = 3000 } = process.env;
@@ -27,7 +28,7 @@ app.use(cardsRouter);
 // middleware для обработки неправильного пути
 const handleNotFound = (req, res, next) => {
   const error = new Error('Был запрошен несуществующий роут');
-  error.status = 404;
+  error.status = ERROR_CODE_NOT_FOUND;
   next(error);
 };
 
