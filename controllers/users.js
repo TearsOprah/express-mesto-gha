@@ -43,7 +43,7 @@ const updateUserProfile = (req, res) => {
   const userId = req.user._id;
 
   // Проверка на длину полей name и about
-  if (name.length < 2 || name.length > 30 || about.length < 2 || about.length > 30) {
+  if (!name || !about || name.length < 2 || name.length > 30 || about.length < 2 || about.length > 30) {
     return res.status(ERROR_CODE_BAD_REQUEST).send({ message: 'Длина полей name и about должна быть от 2 до 30 символов' });
   }
 
@@ -52,7 +52,7 @@ const updateUserProfile = (req, res) => {
       if (!user) {
         return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден' });
       }
-      return res.send({ message: 'Данные профиля успешно обновлены' });
+      return res.send(user);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
