@@ -28,4 +28,19 @@ const createUser = (req, res) => {
     .catch((err) => res.status(500).send({ message: err.message }));
 };
 
-module.exports = { createUser, getUsers, getUserById };
+// обновление данных профиля
+const updateUserProfile = (req, res) => {
+  const { name, about } = req.body;
+  const userId = req.user._id;
+
+  User.findByIdAndUpdate(userId, { name, about }, { new: true })
+    .then((user) => {
+      if (!user) {
+        return res.status(404).send({ message: 'Пользователь не найден' })
+      }
+      return res.send(user);
+    })
+    .catch((err) => res.status(500).send({ message: err.message }));
+};
+
+module.exports = { createUser, getUsers, getUserById, updateUserProfile };
