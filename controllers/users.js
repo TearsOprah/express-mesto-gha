@@ -1,4 +1,5 @@
 const User = require('../models/user');
+const mongoose = require('mongoose');
 
 const ERROR_CODE_BAD_REQUEST = 400;
 const ERROR_CODE_NOT_FOUND = 404;
@@ -13,6 +14,13 @@ const getUsers = (req, res) => {
 
 // получение пользователя по id
 const getUserById = (req, res) => {
+  const userId = req.params.userId;
+
+  // проверка на валидность ObjectId
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    return res.status(ERROR_CODE_BAD_REQUEST).json({ message: 'Некорректный идентификатор пользователя' });
+  }
+
   User.findById(req.params.userId)
     .then((user) => {
       if (!user) {

@@ -1,4 +1,5 @@
 const Card = require('../models/card');
+const mongoose = require('mongoose');
 
 const ERROR_CODE_BAD_REQUEST = 400;
 const ERROR_CODE_NOT_FOUND = 404;
@@ -33,6 +34,11 @@ const createCard = (req, res) => {
 // контроллер удаления карточки
 const deleteCard = (req, res) => {
   const { cardId } = req.params;
+
+  // проверка на валидность ObjectId
+  if (!mongoose.Types.ObjectId.isValid(cardId)) {
+    return res.status(ERROR_CODE_BAD_REQUEST).json({ message: 'Некорректный идентификатор карточки' });
+  }
 
   Card.findByIdAndRemove(cardId)
     .then((card) => {
