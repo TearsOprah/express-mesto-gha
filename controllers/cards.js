@@ -52,4 +52,19 @@ const likeCard = (req, res) => {
     .catch((err) => res.status(500).send({ message: err.message }));
 };
 
-module.exports = { getAllCards, createCard, deleteCard, likeCard };
+// удаление лайка
+const dislikeCard = (req, res) => {
+  const { cardId } = req.params;
+  const userId = req.user._id;
+
+  Card.findByIdAndUpdate(cardId, { $pull: { likes: userId } }, { new: true }) // убрать _id из массива
+    .then((card) => {
+      if (!card) {
+        return res.status(404).send({ message: 'Карточка не найдена' });
+      }
+      return res.send(card);
+    })
+    .catch((err) => res.status(500).send({ message: err.message }));
+};
+
+module.exports = { getAllCards, createCard, deleteCard, likeCard, dislikeCard };
