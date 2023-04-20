@@ -39,7 +39,7 @@ const updateUserProfile = (req, res) => {
   const userId = req.user._id;
 
   // Проверка на длину полей name и about
-  if (name.length < 2 || name.length > 30 || about.length < 2 || about.length > 30) {
+  if ((typeof name !== 'undefined' && typeof about !== 'undefined') && (name.length < 2 || name.length > 30 || about.length < 2 || about.length > 30)) {
     return res.status(400).send({ message: 'Длина полей name и about должна быть от 2 до 30 символов' });
   }
 
