@@ -1,10 +1,14 @@
 const User = require('../models/user');
 
+const ERROR_CODE_BAD_REQUEST = 400;
+const ERROR_CODE_NOT_FOUND = 404;
+const ERROR_CODE_INTERNAL_SERVER_ERROR = 500;
+
 // получение всех пользователей
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send(users))
-    .catch(() => res.status(500).send({ message: 'Ошибка по умолчанию' }));
+    .catch(() => res.status(ERROR_CODE_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка по умолчанию' }));
 };
 
 // получение пользователя по id
@@ -12,11 +16,11 @@ const getUserById = (req, res) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
-        return res.status(404).send({ message: 'Пользователь по указанному _id не найден' });
+        return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Пользователь по указанному _id не найден' });
       }
       return res.send(user);
     })
-    .catch(() => res.status(500).send({ message: 'Ошибка по умолчанию' }));
+    .catch(() => res.status(ERROR_CODE_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка по умолчанию' }));
 };
 
 // создание нового пользователя
@@ -27,9 +31,9 @@ const createUser = (req, res) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' });
+        return res.status(ERROR_CODE_BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании пользователя' });
       }
-      return res.status(500).send({ message: 'Ошибка по умолчанию' });
+      return res.status(ERROR_CODE_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка по умолчанию' });
     });
 };
 
@@ -40,21 +44,21 @@ const updateUserProfile = (req, res) => {
 
   // Проверка на длину полей name и about
   if ((typeof name !== 'undefined' && typeof about !== 'undefined') && (name.length < 2 || name.length > 30 || about.length < 2 || about.length > 30)) {
-    return res.status(400).send({ message: 'Длина полей name и about должна быть от 2 до 30 символов' });
+    return res.status(ERROR_CODE_BAD_REQUEST).send({ message: 'Длина полей name и about должна быть от 2 до 30 символов' });
   }
 
   User.findByIdAndUpdate(userId, { name, about }, { new: true })
     .then((user) => {
       if (!user) {
-        return res.status(404).send({ message: 'Пользователь с указанным _id не найден' });
+        return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден' });
       }
       return res.send(user);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля' });
+        return res.status(ERROR_CODE_BAD_REQUEST).send({ message: 'Переданы некорректные данные при обновлении профиля' });
       }
-      return res.status(500).send({ message: 'Ошибка по умолчанию' });
+      return res.status(ERROR_CODE_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка по умолчанию' });
     });
 
   return res;
@@ -68,15 +72,15 @@ const updateUserAvatar = (req, res) => {
   User.findByIdAndUpdate(userId, { avatar }, { new: true })
     .then((user) => {
       if (!user) {
-        return res.status(404).send({ message: 'Пользователь с указанным _id не найден' });
+        return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден' });
       }
       return res.send(user);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные при обновлении аватара' });
+        return res.status(ERROR_CODE_BAD_REQUEST).send({ message: 'Переданы некорректные данные при обновлении аватара' });
       }
-      return res.status(500).send({ message: 'Ошибка по умолчанию' });
+      return res.status(ERROR_CODE_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка по умолчанию' });
     });
 };
 
