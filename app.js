@@ -35,7 +35,7 @@ const handleNotFound = (req, res, next) => {
 app.use(handleNotFound);
 
 // middleware обработки ошибок
-app.use((err, req, res) => {
+app.use((err, req, res, next) => {
   res.status(err.status).json({
     error: err.message,
   });
