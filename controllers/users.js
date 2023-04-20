@@ -38,6 +38,11 @@ const updateUserProfile = (req, res) => {
   const { name, about } = req.body;
   const userId = req.user._id;
 
+  // Проверка на длину полей name и about
+  if (name.length < 2 || name.length > 30 || about.length < 2 || about.length > 30) {
+    return res.status(400).send({ message: 'Длина полей name и about должна быть от 2 до 30 символов' });
+  }
+
   User.findByIdAndUpdate(userId, { name, about }, { new: true })
     .then((user) => {
       if (!user) {
@@ -51,6 +56,8 @@ const updateUserProfile = (req, res) => {
       }
       return res.status(500).send({ message: 'Ошибка по умолчанию' });
     });
+
+  return res;
 };
 
 // обновление аватара
