@@ -52,7 +52,7 @@ const updateUserProfile = (req, res) => {
       if (!user) {
         return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден' });
       }
-      return res.send(user);
+      return res.send({ message: 'Данные профиля успешно обновлены' });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
