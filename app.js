@@ -37,8 +37,9 @@ app.use(handleNotFound);
 // middleware обработки ошибок
 app.use((err, req, res, next) => {
   res.status(err.status).json({
-    error: err.message,
+    message: err.message,
   });
+  next();
 });
 
 app.listen(PORT, () => {
