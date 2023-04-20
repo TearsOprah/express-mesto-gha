@@ -43,7 +43,7 @@ const updateUserProfile = (req, res) => {
   const userId = req.user._id;
 
   // Проверка на длину полей name и about
-  if ((typeof name !== 'undefined' && typeof about !== 'undefined') && (name.length < 2 || name.length > 30 || about.length < 2 || about.length > 30)) {
+  if (name.length < 2 || name.length > 30 || about.length < 2 || about.length > 30) {
     return res.status(ERROR_CODE_BAD_REQUEST).send({ message: 'Длина полей name и about должна быть от 2 до 30 символов' });
   }
 
@@ -60,8 +60,6 @@ const updateUserProfile = (req, res) => {
       }
       return res.status(ERROR_CODE_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка по умолчанию' });
     });
-
-  return res;
 };
 
 // обновление аватара
