@@ -4,7 +4,7 @@ const Card = require('../models/card');
 const getAllCards = (req, res) => {
   Card.find()
     .then((cards) => res.send(cards))
-    .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
+    .catch(() => res.status(500).send({ message: 'Ошибка по умолчанию' }));
 };
 
 // контроллер для создания новой карточки
@@ -18,9 +18,9 @@ const createCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(400).json({ message: 'Переданы некорректные данные' });
+        return res.status(400).json({ message: 'Переданы некорректные данные при создании карточки' });
       }
-      return res.status(500).json({ message: 'Ошибка сервера' });
+      return res.status(500).json({ message: 'Ошибка по умолчанию' });
     });
 };
 
@@ -31,11 +31,11 @@ const deleteCard = (req, res) => {
   Card.findByIdAndRemove(cardId)
     .then((card) => {
       if (!card) {
-        return res.status(404).json({ message: 'Карточка не найдена' });
+        return res.status(404).json({ message: 'Карточка с указанным _id не найдена' });
       }
       return res.status(200).json({ card });
     })
-    .catch(() => res.status(500).json({ message: 'Ошибка сервера' }));
+    .catch(() => res.status(500).json({ message: 'Ошибка по умолчанию' }));
 };
 
 // ставим лайк
@@ -50,11 +50,16 @@ const likeCard = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        return res.status(404).send({ message: 'Карточка не найдена' });
+        return res.status(404).send({ message: 'Передан несуществующий _id карточки' });
       }
       return res.send(card);
     })
-    .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(400).send({ message: 'Переданы некорректные данные для постановки лайка' });
+      }
+      return res.status(500).send({ message: 'Ошибка по умолчанию' });
+    });
 };
 
 // удаление лайка
@@ -69,11 +74,16 @@ const dislikeCard = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        return res.status(404).send({ message: 'Карточка не найдена' });
+        return res.status(404).send({ message: 'Передан несуществующий _id карточки' });
       }
       return res.send(card);
     })
-    .catch(() => res.status(500).send({ message: 'Ошибка сервера' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(400).send({ message: 'Переданы некорректные данные для снятия лайка' });
+      }
+      return res.status(500).send({ message: 'Ошибка по умолчанию' });
+    });
 };
 
 module.exports = {
