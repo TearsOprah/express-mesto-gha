@@ -51,11 +51,6 @@ const updateUserProfile = (req, res) => {
   const { name, about } = req.body;
   const userId = req.user._id;
 
-  // Проверка на длину полей name и about
-  if (name.length < 2 || name.length > 30 || about.length < 2 || about.length > 30) {
-    return res.status(ERROR_CODE_BAD_REQUEST).send({ message: 'Длина полей name и about должна быть от 2 до 30 символов' });
-  }
-
   User.findByIdAndUpdate(userId, { name, about }, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
