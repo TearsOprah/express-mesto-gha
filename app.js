@@ -24,7 +24,22 @@ app.use(express.json());
 app.use(usersRouter);
 app.use(cardsRouter);
 
-app.use('/users', require('./routes/users'));
+// middleware для обработки неправильного пути
+const handleNotFound = (req, res, next) => {
+  const error = new Error('Был запрошен несуществующий роут');
+  error.status = 404;
+  next(error);
+};
+
+// обработка ошибки 404
+app.use(handleNotFound);
+
+// middleware обработки ошибок
+app.use((err, req, res) => {
+  res.status(err.status).json({
+    error: err.message,
+  });
+});
 
 app.listen(PORT, () => {
   console.log(`Сервер запущен на порту ${PORT}`);
