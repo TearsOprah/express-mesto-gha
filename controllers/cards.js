@@ -37,4 +37,19 @@ const deleteCard = (req, res) => {
     });
 };
 
-module.exports = { getAllCards, createCard, deleteCard };
+// ставим лайк
+const likeCard = (req, res) => {
+  const { cardId } = req.params;
+  const userId = req.user._id;
+
+  Card.findByIdAndUpdate(cardId, { $addToSet: { likes: userId } }, { new: true }) // добавить _id в массив, если его там нет
+    .then((card) => {
+      if (!card) {
+        return res.status(404).send({ message: 'Карточка не найдена' });
+      }
+      return res.send(card);
+    })
+    .catch((err) => res.status(500).send({ message: err.message }));
+};
+
+module.exports = { getAllCards, createCard, deleteCard, likeCard };
