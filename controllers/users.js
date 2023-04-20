@@ -52,12 +52,11 @@ const updateUserProfile = (req, res) => {
   const userId = req.user._id;
 
   // Проверка на длину полей name и about
-  if (!name || !about
-    || name.length < 2 || name.length > 30 || about.length < 2 || about.length > 30) {
+  if (name.length < 2 || name.length > 30 || about.length < 2 || about.length > 30) {
     return res.status(ERROR_CODE_BAD_REQUEST).send({ message: 'Длина полей name и about должна быть от 2 до 30 символов' });
   }
 
-  User.findByIdAndUpdate(userId, { name, about }, { new: true })
+  User.findByIdAndUpdate(userId, { name, about }, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
         return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден' });
@@ -65,6 +64,9 @@ const updateUserProfile = (req, res) => {
       return res.send(user);
     })
     .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(ERROR_CODE_BAD_REQUEST).send({ message: 'Ошибка валидации данных' });
+      }
       if (err.name === 'CastError') {
         return res.status(ERROR_CODE_BAD_REQUEST).send({ message: 'Переданы некорректные данные при обновлении профиля' });
       }
@@ -78,7 +80,7 @@ const updateUserAvatar = (req, res) => {
   const { avatar } = req.body;
   const userId = req.user._id;
 
-  User.findByIdAndUpdate(userId, { avatar }, { new: true })
+  User.findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
         return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден' });
@@ -86,6 +88,9 @@ const updateUserAvatar = (req, res) => {
       return res.send(user);
     })
     .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(ERROR_CODE_BAD_REQUEST).send({ message: 'Ошибка валидации данных' });
+      }
       if (err.name === 'CastError') {
         return res.status(ERROR_CODE_BAD_REQUEST).send({ message: 'Переданы некорректные данные при обновлении аватара' });
       }
