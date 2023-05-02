@@ -4,6 +4,7 @@ const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
 const { ERROR_CODE_NOT_FOUND } = require('./http-status-codes');
 const auth = require('./middlewares/auth');
+const { createUser, login } = require('./controllers/users');
 
 const app = express();
 const { PORT = 3000 } = process.env;
@@ -14,42 +15,21 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useUnifiedTopology: true,
 });
 
-// // авторизация
-// app.use(auth);
-//
-// // роуты, которым нужна авторизация
-// app.use('/', require('./routes/users'));
-// app.use('/', require('./routes/cards'));
-
-// // временное решение авторизации
-// app.use((req, res, next) => {
-//   req.user = {
-//     _id: '6450d1cecd0ad4ba6516e9b4', // вставьте сюда _id созданного в предыдущем пункте пользователя
-//   };
-//   next();
-// });
-
 app.use(express.json());
 app.use(usersRouter);
 app.use(cardsRouter);
 
-// middleware для обработки неправильного пути
-const handleNotFound = (req, res, next) => {
-  const error = new Error('Был запрошен несуществующий роут');
-  error.status = ERROR_CODE_NOT_FOUND;
-  next(error);
-};
+app.post('/signin', login);
+app.post('/signup', createUser);
 
-// обработка ошибки 404
-app.use(handleNotFound);
+// авторизация
+app.use(auth);
 
-// middleware обработки ошибок
-app.use((err, req, res, next) => {
-  res.status(err.status).json({
-    message: err.message,
-  });
-  next();
-});
+// роуты, которым нужна авторизация
+app.use('/', require('./routes/users'));
+app.use('/', require('./routes/cards'));
+
+app.use((req, res) => res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Страница не найдена' }));
 
 app.listen(PORT, () => {
   console.log(`Сервер запущен на порту ${PORT}`);

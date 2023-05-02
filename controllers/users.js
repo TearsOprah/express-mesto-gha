@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
 const User = require('../models/user');
-const { ERROR_CODE_INTERNAL_SERVER_ERROR, ERROR_CODE_UNAUTHORIZED, ERROR_CODE_BAD_REQUEST, ERROR_CODE_NOT_FOUND } = require('../http-status-codes');
+const { ERROR_CODE_INTERNAL_SERVER_ERROR, errorsHandler, ERROR_CODE_BAD_REQUEST, ERROR_CODE_NOT_FOUND } = require('../http-status-codes');
 const bcrypt = require('bcryptjs');
-const { NODE_ENV, JWT_SECRET } = process.env;
+// const { NODE_ENV, JWT_SECRET } = process.env;
 const jwt = require('jsonwebtoken');
+const secretKey = 'secret_key_here';
 
 // получение всех пользователей
 const getUsers = (req, res) => {
@@ -34,16 +35,23 @@ const getUserById = (req, res) => {
 
 // создание нового пользователя
 const createUser = (req, res) => {
-  const { name, about, avatar, email, password } = req.body;
-
-  User.create({ name, about, avatar, email, password: bcrypt.hashSync(password, 10) })
-    .then((user) => res.send({ data: user }))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res.status(ERROR_CODE_BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании пользователя' });
-      }
-      return res.status(ERROR_CODE_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка по умолчанию' });
-    });
+  bcrypt
+    .hash(req.body.password, 10)
+    .then((hash) => User.create({
+      email: req.body.email,
+      password: hash,
+      name: req.body.name,
+      about: req.body.about,
+      avatar: req.body.avatar,
+    }))
+    .then((user) => res.status(200).send({
+      name: user.name,
+      about: user.about,
+      avatar: user.avatar,
+      _id: user._id,
+      email: user.email,
+    }))
+    .catch((err) => errorsHandler(err, res));
 };
 
 // обновление данных профиля
@@ -95,36 +103,22 @@ const updateUserAvatar = (req, res) => {
 
 const login = (req, res) => {
   const { email, password } = req.body;
-
-  User.findOne({ email })
-    .select('+password')
+  return User.findUserByCredentials(email, password)
     .then((user) => {
-      if (!user) {
-        return res.status(ERROR_CODE_UNAUTHORIZED).send({ message: 'Неправильные почта или пароль' });
-      }
-
-      bcrypt.compare(password, user.password)
-        .then((matched) => {
-          if (!matched) {
-            return res.status(ERROR_CODE_UNAUTHORIZED).send({ message: 'Неправильные почта или пароль' });
-          }
-
-          const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
-
-          res.cookie('jwt', token, {
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-            httpOnly: true,
-            sameSite: true,
-          });
-
-          res.send({ message: 'Авторизация прошла успешно' });
-        })
-        .catch((err) => {
-          res.status(ERROR_CODE_UNAUTHORIZED).send({ message: err.message });
-        });
+      // создадим токен
+      const token = jwt.sign(
+        { _id: user._id },
+        secretKey,
+        {
+          expiresIn: '7d',
+        },
+      );
+      // вернём токен
+      res.send({ token });
     })
-    .catch(() => {
-      res.status(ERROR_CODE_UNAUTHORIZED).send({ message: 'Неправильные почта или пароль' });
+    .catch((err) => {
+      // возвращаем ошибку аутентификации
+      res.status(401).send({ message: err.message });
     });
 };
 
