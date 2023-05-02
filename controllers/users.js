@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const User = require('../models/user');
 const { ERROR_CODE_INTERNAL_SERVER_ERROR, ERROR_CODE_BAD_REQUEST, ERROR_CODE_NOT_FOUND } = require('../http-status-codes');
+const bcrypt = require('bcryptjs');
 
 // получение всех пользователей
 const getUsers = (req, res) => {
@@ -33,7 +34,7 @@ const getUserById = (req, res) => {
 const createUser = (req, res) => {
   const { name, about, avatar, email, password } = req.body;
 
-  User.create({ name, about, avatar, email, password })
+  User.create({ name, about, avatar, email, password: bcrypt.hashSync(password, 10) })
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
