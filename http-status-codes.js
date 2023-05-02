@@ -4,6 +4,7 @@ const ERROR_CODE_INTERNAL_SERVER_ERROR = 500;
 const STATUS_OK = 200;
 const STATUS_CREATED = 201;
 const ERROR_CODE_UNAUTHORIZED = 401;
+const ERROR_CODE_FORBIDDEN = 403;
 
 const errorsHandler = (err, res) => {
   if (err.name === 'CastError') {
@@ -29,5 +30,6 @@ module.exports = {
   STATUS_OK,
   STATUS_CREATED,
   ERROR_CODE_UNAUTHORIZED,
+  ERROR_CODE_FORBIDDEN,
   errorsHandler,
 };

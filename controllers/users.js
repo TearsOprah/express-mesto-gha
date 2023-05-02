@@ -44,13 +44,7 @@ const createUser = (req, res) => {
       about: req.body.about,
       avatar: req.body.avatar,
     }))
-    .then((user) => res.status(200).send({
-      name: user.name,
-      about: user.about,
-      avatar: user.avatar,
-      _id: user._id,
-      email: user.email,
-    }))
+    .then((user) => res.status(200).send(user))
     .catch((err) => errorsHandler(err, res));
 };
 

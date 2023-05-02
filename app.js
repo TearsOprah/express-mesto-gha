@@ -19,6 +19,7 @@ app.use(express.json());
 app.use(usersRouter);
 app.use(cardsRouter);
 
+// роуты, которые не требуют авторизации
 app.post('/signin', login);
 app.post('/signup', createUser);
 
@@ -34,3 +35,8 @@ app.use((req, res) => res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Стра
 app.listen(PORT, () => {
   console.log(`Сервер запущен на порту ${PORT}`);
 });
+
+// {
+//   "email": "johndoe@example.com",
+//   "password": "password123"
+// }

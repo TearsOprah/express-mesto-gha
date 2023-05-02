@@ -5,6 +5,7 @@ const {
   ERROR_CODE_BAD_REQUEST,
   ERROR_CODE_NOT_FOUND,
   STATUS_CREATED,
+  ERROR_CODE_FORBIDDEN,
 } = require('../http-status-codes');
 
 // контроллер получения всех карточек
@@ -34,21 +35,30 @@ const createCard = (req, res) => {
 // контроллер удаления карточки
 const deleteCard = (req, res) => {
   const { cardId } = req.params;
+  const userId = req.user._id;
 
   // проверка на валидность ObjectId
   if (!mongoose.Types.ObjectId.isValid(cardId)) {
     return res.status(ERROR_CODE_BAD_REQUEST).json({ message: 'Некорректный идентификатор карточки' });
   }
 
-  Card.findByIdAndRemove(cardId)
+  Card.findById(cardId)
     .then((card) => {
       if (!card) {
         return res.status(ERROR_CODE_NOT_FOUND).json({ message: 'Карточка с указанным _id не найдена' });
       }
+
+      // проверяем, что пользователь имеет право удалять карточку
+      if (card.owner.toString() !== userId) {
+        return res.status(ERROR_CODE_FORBIDDEN).json({ message: 'Нет прав для удаления карточки' });
+      }
+
+      return Card.findByIdAndRemove(cardId);
+    })
+    .then((card) => {
       return res.json({ card });
     })
     .catch(() => res.status(ERROR_CODE_INTERNAL_SERVER_ERROR).json({ message: 'Ошибка по умолчанию' }));
-  return res;
 };
 
 // ставим лайк

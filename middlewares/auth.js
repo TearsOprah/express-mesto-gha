@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
 
-// eslint-disable-next-line consistent-return
 module.exports = (req, res, next) => {
   // достаём авторизационный заголовок
   const { authorization } = req.headers;
