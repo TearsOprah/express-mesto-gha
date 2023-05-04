@@ -3,6 +3,9 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const UnauthorizedError = require('../errors/Unauthorized');
 const NotFoundError = require('../errors/NotFound');
+const {
+  STATUS_CREATED,
+} = require('../http-status-codes');
 
 // получение всех пользователей
 function getUsers(req, res, next) {
@@ -46,7 +49,7 @@ function createUser(req, res, next) {
     .then((user) => {
       const { _id } = user;
 
-      return res.status(201).send({
+      return res.status(STATUS_CREATED).send({
         email,
         name,
         about,
