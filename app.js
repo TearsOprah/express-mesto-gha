@@ -1,12 +1,12 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const { celebrate, Joi, errors } = require('celebrate');
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
 const auth = require('./middlewares/auth');
 const { createUser, login } = require('./controllers/users');
 const NotFoundError = require('./errors/NotFound');
-const { celebrate, Joi, errors } = require('celebrate');
 
 const app = express();
 const { PORT = 3000 } = process.env;
