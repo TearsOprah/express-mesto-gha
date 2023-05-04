@@ -5,19 +5,27 @@ const bcrypt = require('bcryptjs');
 const userSchema = new mongoose.Schema({
   name: { // у пользователя есть имя — опишем требования к имени в схеме:
     type: String, // имя — это строка
-    minlength: 2, // минимальная длина имени — 2 символа
-    maxlength: 30, // а максимальная — 30 символов
+    validate: {
+      validator: ({ length }) => length >= 2 && length <= 30,
+      message: 'Имя пользователя должно быть длиной от 2 до 30 символов',
+    },
     default: 'Жак-Ив Кусто',
   },
   about: {
     type: String,
-    minlength: 2,
-    maxlength: 30,
+    validate: {
+      validator: ({ length }) => length >= 2 && length <= 30,
+      message: 'Информация о пользователе должна быть длиной от 2 до 30 символов',
+    },
     default: 'Исследователь',
   },
   avatar: {
     type: String,
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
+    validate: {
+      validator: (url) => /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/.test(url),
+      message: 'Требуется ввести url',
+    },
   },
   email: {
     type: String,
@@ -31,8 +39,11 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
-    minlength: 8,
     select: false,
+    validate: {
+      validator: ({ length }) => length >= 8,
+      message: 'Пароль должен быть не менее 8 символов',
+    },
   },
 });
 
