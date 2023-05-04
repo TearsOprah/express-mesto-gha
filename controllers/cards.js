@@ -1,4 +1,3 @@
-const mongoose = require('mongoose');
 const Card = require('../models/card');
 const {
   STATUS_CREATED,
@@ -28,13 +27,8 @@ function createCard(req, res, next) {
 
 // контроллер удаления карточки
 function deleteCard(req, res, next) {
-  const { cardId } = req.params;
-  const userId = req.user._id;
-
-  // проверка на валидность ObjectId
-  if (!mongoose.Types.ObjectId.isValid(cardId)) {
-    res.status(400).json({ message: 'Некорректный идентификатор карточки' });
-  }
+  const { id: cardId } = req.params;
+  const { userId } = req.user;
 
   Card.findById(cardId)
     .then((card) => {
@@ -43,14 +37,15 @@ function deleteCard(req, res, next) {
       }
 
       // проверяем, что пользователь имеет право удалять карточку
-      if (card.owner.toString() !== userId) {
+      const { owner: cardOwnerId } = card;
+      if (cardOwnerId.toString() !== userId) {
         throw new AccessDeniedError('Нет прав доступа');
       }
 
-      Card.findByIdAndRemove(cardId);
+      return Card.findByIdAndRemove(cardId);
     })
     .then((card) => {
-      res.json({ card });
+      res.send({ data: card });
     })
     .catch(next);
 }

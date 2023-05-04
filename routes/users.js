@@ -11,15 +11,15 @@ const {
 // роут для получения всех пользователей
 router.get('/', getUsers);
 
+// роут для получения информации о текущем пользователе
+router.get('/me', getCurrentUser);
+
 // роут для получения пользователя по _id
 router.get('/:id', celebrate({
   params: Joi.object().keys({
     id: Joi.string().min(24).max(24),
   }),
 }), getUserById);
-
-// роут для получения информации о текущем пользователе
-router.get('/me', getCurrentUser);
 
 // роут для обновления профиля пользователя
 router.patch('/me', celebrate({

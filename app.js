@@ -8,15 +8,13 @@ const auth = require('./middlewares/auth');
 const { createUser, login } = require('./controllers/users');
 const NotFoundError = require('./errors/NotFound');
 
-const app = express();
 const { PORT = 3000 } = process.env;
 
 // подключение к базе данных
 mongoose.set('strictQuery', true);
-mongoose.connect('mongodb://localhost:27017/mestodb', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+mongoose.connect('mongodb://localhost:27017/mestodb');
+
+const app = express();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -25,14 +23,14 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.post('/signin', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
-    password: Joi.string().required().min(6),
+    password: Joi.string().required().min(8),
   }),
 }), login);
 
 app.post('/signup', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
-    password: Joi.string().required().min(6),
+    password: Joi.string().required().min(8),
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
     avatar: Joi
@@ -52,7 +50,7 @@ app.use((req, res, next) => next(new NotFoundError('Страница не най
 
 app.use(errors());
 
-app.use((err, req, res, next) => {
+app.use((err, _, res, next) => {
   if (err.name === 'CastError' || err.name === 'ValidationError') {
     const { statusCode = 400 } = err;
 
@@ -64,7 +62,7 @@ app.use((err, req, res, next) => {
   if (err.code === 11000) {
     const { statusCode = 409 } = err;
 
-    return res.status(statusCode).send({ message: 'Пользователь с таким email уже зарегистрирован' });
+    return res.status(statusCode).send({ message: 'Пользователь с таким электронным адресом уже зарегистрирован' });
   }
 
   const { statusCode = 500 } = err;
