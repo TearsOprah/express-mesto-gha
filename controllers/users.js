@@ -1,135 +1,125 @@
-const mongoose = require('mongoose');
 const User = require('../models/user');
-const { ERROR_CODE_INTERNAL_SERVER_ERROR, errorsHandler, ERROR_CODE_BAD_REQUEST, ERROR_CODE_NOT_FOUND } = require('../http-status-codes');
 const bcrypt = require('bcryptjs');
-// const { NODE_ENV, JWT_SECRET } = process.env;
 const jwt = require('jsonwebtoken');
-const secretKey = 'secret_key_here';
+const UnauthorizedError = require('../errors/Unauthorized');
+const NotFoundError = require('../errors/NotFound');
 
 // получение всех пользователей
-const getUsers = (req, res) => {
+function getUsers(req, res, next) {
   User.find({})
-    .then((users) => res.send(users))
-    .catch(() => res.status(ERROR_CODE_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка по умолчанию' }));
-};
+    .then((users) => res.send({ users }))
+    .catch(next);
+}
 
 // получение пользователя по id
-const getUserById = (req, res) => {
-  const { userId } = req.params;
+function getUserById(req, res, next) {
+  const { id } = req.params;
 
-  // проверка на валидность ObjectId
-  if (!mongoose.Types.ObjectId.isValid(userId)) {
-    return res.status(ERROR_CODE_BAD_REQUEST).json({ message: 'Некорректный идентификатор пользователя' });
-  }
-
-  User.findById(req.params.userId)
+  User.findById(id)
     .then((user) => {
-      if (!user) {
-        return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Пользователь по указанному _id не найден' });
+      if (user) {
+        return res.send({ user });
       }
-      return res.send(user);
+      throw new NotFoundError('Пользователь по указанному _id не найден');
     })
-    .catch(() => res.status(ERROR_CODE_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка по умолчанию' }));
-  return res;
-};
+    .catch(next);
+}
 
 // создание нового пользователя
-const createUser = (req, res) => {
-  bcrypt
-    .hash(req.body.password, 10)
+function createUser(req, res, next) {
+  const {
+    email,
+    password,
+    name,
+    about,
+    avatar,
+  } = req.body;
+
+  bcrypt.hash(password, 10)
     .then((hash) => User.create({
-      email: req.body.email,
+      email,
       password: hash,
-      name: req.body.name,
-      about: req.body.about,
-      avatar: req.body.avatar,
+      name,
+      about,
+      avatar,
     }))
-    .then((user) => res.status(200).send(user))
-    .catch((err) => errorsHandler(err, res));
-};
+    .then((user) => {
+      const { _id } = user;
+
+      return res.status(201).send({
+        email,
+        name,
+        about,
+        avatar,
+        _id,
+      });
+    })
+    .catch(next);
+}
 
 // обновление данных профиля
-const updateUserProfile = (req, res) => {
+function updateUserProfile(req, res, next) {
   const { name, about } = req.body;
-  const userId = req.user._id;
+  const { userId } = req.user;
 
   User.findByIdAndUpdate(userId, { name, about }, { new: true, runValidators: true })
     .then((user) => {
-      if (!user) {
-        return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден' });
+      if (user) {
+        return res.send({ user });
       }
-      return res.send(user);
+      throw new NotFoundError('Пользователь с указанным _id не найден');
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res.status(ERROR_CODE_BAD_REQUEST).send({ message: 'Ошибка валидации данных' });
-      }
-      if (err.name === 'CastError') {
-        return res.status(ERROR_CODE_BAD_REQUEST).send({ message: 'Переданы некорректные данные при обновлении профиля' });
-      }
-      return res.status(ERROR_CODE_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка по умолчанию' });
-    });
-  return res;
-};
+    .catch(next);
+}
 
 // обновление аватара
-const updateUserAvatar = (req, res) => {
+function updateUserAvatar(req, res, next) {
   const { avatar } = req.body;
-  const userId = req.user._id;
+  const { userId } = req.user;
 
   User.findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
     .then((user) => {
-      if (!user) {
-        return res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден' });
+      if (user) {
+        return res.send({ user });
       }
-      return res.send(user);
+      throw new NotFoundError('Пользователь с указанным _id не найден');
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res.status(ERROR_CODE_BAD_REQUEST).send({ message: 'Ошибка валидации данных' });
-      }
-      if (err.name === 'CastError') {
-        return res.status(ERROR_CODE_BAD_REQUEST).send({ message: 'Переданы некорректные данные при обновлении аватара' });
-      }
-      return res.status(ERROR_CODE_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка по умолчанию' });
-    });
-};
+    .catch(next);
+}
 
-const login = (req, res) => {
+function login(req, res, next) {
   const { email, password } = req.body;
-  return User.findUserByCredentials(email, password)
-    .then((user) => {
-      // создадим токен
-      const token = jwt.sign(
-        { _id: user._id },
-        secretKey,
-        {
-          expiresIn: '7d',
-        },
-      );
-      // вернём токен
-      res.send({ token });
+  const secretKey = 'nvd6Hds3NXk54s3cAsjcFK5sd2lLs4aKa3e4JS3dsa';
+
+  User.findUserByCredentials(email, password)
+    .then(({ _id: userId }) => {
+      if (userId) {
+        // создадим токен
+        const token = jwt.sign(
+          { userId },
+          secretKey,
+          {
+            expiresIn: '7d',
+          },
+        );
+        // вернём токен
+        return res.send({ _id: token });
+      }
+      throw new UnauthorizedError('Неправильные почта или пароль');
     })
-    .catch((err) => {
-      // возвращаем ошибку аутентификации
-      res.status(401).send({ message: err.message });
-    });
-};
+    .catch(next);
+}
 
-const getCurrentUser = (req, res, next) => {
-  const { _id } = req.user;
-  User.findById(_id).then((user) => {
-    // проверяем, есть ли пользователь с таким id
-    if (!user) {
-      return Promise.reject(new Error('Пользователь не найден.'));
-    }
-
+function getCurrentUser(req, res, next) {
+  const { userId } = req.user;
+  User.findById(userId).then((user) => {
     // возвращаем пользователя, если он есть
-    return res.status(200).send(user);
-  }).catch((err) => {
-    next(err);
-  });
-};
+    if (user) return res.send({ user });
+
+    throw new NotFoundError('Пользователь с указанным _id не найден');
+  })
+    .catch(next);
+}
 
 module.exports = {
   createUser, getUsers, getUserById, getCurrentUser, updateUserProfile, updateUserAvatar, login,
