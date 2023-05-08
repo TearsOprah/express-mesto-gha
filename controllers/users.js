@@ -62,26 +62,24 @@ function createUser(req, res, next) {
     .catch(next);
 }
 
-// обновление данных профиля
-function updateUserProfile(req, res, next) {
-  const { name, about } = req.body;
+function updateUser(req, res, next, updateData) {
   const { userId } = req.user;
-
-  User.findByIdAndUpdate(userId, { name, about }, { new: true, runValidators: true })
+  User.findByIdAndUpdate(userId, updateData, { new: true, runValidators: true })
     .then(handleUserNotFound)
     .then((user) => res.send({ user }))
     .catch(next);
 }
 
+// обновление данных профиля
+function updateUserProfile(req, res, next) {
+  const { name, about } = req.body;
+  updateUser(req, res, next, { name, about });
+}
+
 // обновление аватара
 function updateUserAvatar(req, res, next) {
   const { avatar } = req.body;
-  const { userId } = req.user;
-
-  User.findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
-    .then(handleUserNotFound)
-    .then((user) => res.send({ user }))
-    .catch(next);
+  updateUser(req, res, next, { avatar });
 }
 
 function login(req, res, next) {
