@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const { urlRegExp } = require('../urlRegExp');
 
 const { Schema } = mongoose;
 
@@ -8,10 +9,8 @@ const userSchema = new Schema(
     name: {
       type: String,
       default: 'Жак-Ив Кусто',
-      validate: {
-        validator: ({ length }) => length >= 2 && length <= 30,
-        message: 'Имя пользователя должно быть длиной от 2 до 30 символов',
-      },
+      minlength: 2,
+      maxlength: 30,
     },
 
     email: {
@@ -28,26 +27,22 @@ const userSchema = new Schema(
       type: String,
       required: true,
       select: false,
-      validate: {
-        validator: ({ length }) => length >= 8,
-        message: 'Пароль должен быть не менее 8 символов',
-      },
+      minlength: 8,
+      message: 'Пароль должен быть не менее 8 символов',
     },
 
     about: {
       type: String,
       default: 'Исследователь',
-      validate: {
-        validator: ({ length }) => length >= 2 && length <= 30,
-        message: 'Информация о пользователе должна быть длиной от 2 до 30 символов',
-      },
+      minlength: 2,
+      maxlength: 30,
     },
 
     avatar: {
       type: String,
       default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
       validate: {
-        validator: (url) => /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/.test(url),
+        validator: (url) => urlRegExp.test(url),
         message: 'Требуется ввести url',
       },
     },
@@ -66,11 +61,11 @@ const userSchema = new Schema(
                 .then((matched) => {
                   if (matched) return user;
 
-                  return Promise.reject();
+                  return Promise.reject(new Error('Неправильные почта или пароль'));
                 });
             }
 
-            return Promise.reject();
+            return Promise.reject(new Error('Неправильные почта или пароль'));
           });
       },
     },

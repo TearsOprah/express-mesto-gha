@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { urlRegExp } = require('../urlRegExp');
 
 const { Schema } = mongoose;
 const { ObjectId } = mongoose.Schema.Types;
@@ -8,17 +9,15 @@ const cardSchema = new Schema(
     name: {
       type: String,
       required: true,
-      validate: {
-        validator: ({ length }) => length >= 2 && length <= 30,
-        message: 'Длина имени карточки должна быть от 2 до 30 символов',
-      },
+      minlength: 2,
+      maxlength: 30,
     },
 
     link: {
       type: String,
       required: true,
       validate: {
-        validator: (url) => /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/.test(url),
+        validator: (url) => urlRegExp.test(url),
         message: 'Требуется ввести url',
       },
     },
