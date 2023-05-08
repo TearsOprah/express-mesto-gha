@@ -42,7 +42,7 @@ function deleteCard(req, res, next) {
         throw new AccessDeniedError('Нет прав доступа');
       }
 
-      return Card.findByIdAndRemove(cardId);
+      return Card.deleteOne({ _id: cardId });
     })
     .then((card) => {
       res.send({ data: card });
