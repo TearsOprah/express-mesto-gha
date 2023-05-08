@@ -18,15 +18,15 @@ router.get('/me', getCurrentUser);
 // роут для получения пользователя по _id
 router.get('/:id', celebrate({
   params: Joi.object().keys({
-    id: Joi.string().min(24).max(24),
+    id: Joi.string().hex().length(24).required(),
   }),
 }), getUserById);
 
 // роут для обновления профиля пользователя
 router.patch('/me', celebrate({
   body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
+    name: Joi.string().min(2).max(30).required(),
+    about: Joi.string().min(2).max(30).required(),
   }),
 }), updateUserProfile);
 
@@ -35,7 +35,8 @@ router.patch('/me/avatar', celebrate({
   body: Joi.object().keys({
     avatar: Joi
       .string()
-      .pattern(urlRegExp),
+      .pattern(urlRegExp)
+      .required(),
   }),
 }), updateUserAvatar);
 

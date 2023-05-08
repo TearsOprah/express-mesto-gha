@@ -11,7 +11,7 @@ router.get('/', getAllCards);
 // роут для создания новой карточки
 router.post('/', celebrate({
   body: Joi.object().keys({
-    name: Joi.string().required().min(2).max(30),
+    name: Joi.string().min(2).max(30).required(),
     link: Joi.string()
       .required()
       .pattern(urlRegExp),
@@ -21,21 +21,21 @@ router.post('/', celebrate({
 // роут для удаления карточки
 router.delete('/:id', celebrate({
   params: Joi.object().keys({
-    id: Joi.string().min(24).max(24),
+    id: Joi.string().hex().length(24).required(),
   }),
 }), deleteCard);
 
 // ставим лайк
 router.put('/:cardId/likes', celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().min(24).max(24),
+    cardId: Joi.string().hex().length(24).required(),
   }),
 }), likeCard);
 
 // удаляем лайк
 router.delete('/:cardId/likes', celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().min(24).max(24),
+    cardId: Joi.string().hex().length(24).required(),
   }),
 }), dislikeCard);
 
