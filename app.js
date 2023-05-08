@@ -7,6 +7,7 @@ const cardsRouter = require('./routes/cards');
 const auth = require('./middlewares/auth');
 const { createUser, login } = require('./controllers/users');
 const NotFoundError = require('./errors/NotFound');
+const { urlRegExp } = require('./urlRegExp');
 
 const { PORT = 3000 } = process.env;
 
@@ -35,7 +36,7 @@ app.post('/signup', celebrate({
     about: Joi.string().min(2).max(30),
     avatar: Joi
       .string()
-      .pattern(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/),
+      .pattern(urlRegExp),
   }),
 }), createUser);
 
