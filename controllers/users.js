@@ -1,7 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const UnauthorizedError = require('../errors/Unauthorized');
 const NotFoundError = require('../errors/NotFound');
 const {
   STATUS_CREATED,
@@ -96,19 +95,16 @@ function login(req, res, next) {
 
   User.findUserByCredentials(email, password)
     .then(({ _id: userId }) => {
-      if (userId) {
-        // создадим токен
-        const token = jwt.sign(
-          { userId },
-          secretKey,
-          {
-            expiresIn: '7d',
-          },
-        );
-        // вернём токен
-        return res.send({ _id: token });
-      }
-      throw new UnauthorizedError('Неправильные почта или пароль');
+      // создадим токен
+      const token = jwt.sign(
+        { userId },
+        secretKey,
+        {
+          expiresIn: '7d',
+        },
+      );
+      // вернём токен
+      return res.send({ _id: token });
     })
     .catch(next);
 }
