@@ -7,6 +7,7 @@ const auth = require('./middlewares/auth');
 const { createUser, login } = require('./controllers/users');
 const NotFoundError = require('./errors/NotFound');
 const { urlRegExp } = require('./urlRegExp');
+const errorHandler = require('./errors/errorHandler');
 
 const { PORT = 3000 } = process.env;
 
@@ -49,25 +50,7 @@ app.use('/cards', cardsRouter);
 app.use((req, res, next) => next(new NotFoundError('Страница не найдена')));
 
 app.use(errors());
-
-app.use((err, _, res, next) => {
-  if (err.name === 'CastError' || err.name === 'ValidationError') {
-    const { statusCode = 400 } = err;
-    return res.status(statusCode).send({ message: 'Переданы некорректные данные' });
-  }
-
-  if (err.code === 11000) {
-    const { statusCode = 409 } = err;
-    return res.status(statusCode).send({ message: 'Пользователь с таким электронным адресом уже зарегистрирован' });
-  }
-
-  if (err.statusCode) {
-    return res.status(err.statusCode).send({ message: err.message });
-  }
-
-  const { statusCode = 500 } = err;
-  return next(res.status(statusCode).send({ message: 'На сервере произошла ошибка' }));
-});
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Сервер запущен на порту ${PORT}`);
