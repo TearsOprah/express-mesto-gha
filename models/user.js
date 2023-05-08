@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const { urlRegExp } = require('../urlRegExp');
+const UnauthorizedError = require('../errors/Unauthorized');
 
 const { Schema } = mongoose;
 
@@ -61,11 +62,11 @@ const userSchema = new Schema(
                 .then((matched) => {
                   if (matched) return user;
 
-                  return Promise.reject(new Error('Неправильные почта или пароль'));
+                  throw new UnauthorizedError('Неправильные почта или пароль');
                 });
             }
 
-            return Promise.reject(new Error('Неправильные почта или пароль'));
+            throw new UnauthorizedError('Неправильные почта или пароль');
           });
       },
     },
