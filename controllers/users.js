@@ -104,7 +104,7 @@ function login(req, res, next) {
         },
       );
       // вернём токен
-      return res.send({ _id: token });
+      return res.send({ token });
     })
     .catch(next);
 }
