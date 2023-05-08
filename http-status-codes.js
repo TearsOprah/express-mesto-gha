@@ -6,23 +6,6 @@ const STATUS_CREATED = 201;
 const ERROR_CODE_UNAUTHORIZED = 401;
 const ERROR_CODE_FORBIDDEN = 403;
 
-const errorsHandler = (err, res) => {
-  if (err.name === 'CastError') {
-    return res
-      .status(ERROR_CODE_BAD_REQUEST)
-      .send({ message: `Ошибка ${ERROR_CODE_BAD_REQUEST}.` });
-  }
-  if (err.name === 'ValidationError') {
-    return res
-      .status(ERROR_CODE_BAD_REQUEST)
-      .send({ message: 'Переданы некорректные данные.' });
-  }
-
-  return res
-    .status(ERROR_CODE_INTERNAL_SERVER_ERROR)
-    .send({ message: `Ошибка сервера ${ERROR_CODE_INTERNAL_SERVER_ERROR}` });
-};
-
 module.exports = {
   ERROR_CODE_BAD_REQUEST,
   ERROR_CODE_NOT_FOUND,
@@ -31,5 +14,4 @@ module.exports = {
   STATUS_CREATED,
   ERROR_CODE_UNAUTHORIZED,
   ERROR_CODE_FORBIDDEN,
-  errorsHandler,
 };
