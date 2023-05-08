@@ -9,6 +9,8 @@ const AccessDeniedError = require('../errors/AccessDenied');
 // контроллер получения всех карточек
 function getAllCards(req, res, next) {
   Card.find()
+    .populate('owner')
+    .populate('likes')
     .then((cards) => res.send({ data: cards }))
     .catch(next);
 }
