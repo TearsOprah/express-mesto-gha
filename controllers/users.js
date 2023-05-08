@@ -6,6 +6,13 @@ const {
   STATUS_CREATED,
 } = require('../http-status-codes');
 
+function handleUserNotFound(user) {
+  if (!user) {
+    throw new NotFoundError('Пользователь по указанному _id не найден');
+  }
+  return user;
+}
+
 // получение всех пользователей
 function getUsers(req, res, next) {
   User.find({})
@@ -18,12 +25,8 @@ function getUserById(req, res, next) {
   const { id } = req.params;
 
   User.findById(id)
-    .then((user) => {
-      if (user) {
-        return res.send({ user });
-      }
-      throw new NotFoundError('Пользователь по указанному _id не найден');
-    })
+    .then(handleUserNotFound)
+    .then((user) => res.send({ user }))
     .catch(next);
 }
 
@@ -65,12 +68,8 @@ function updateUserProfile(req, res, next) {
   const { userId } = req.user;
 
   User.findByIdAndUpdate(userId, { name, about }, { new: true, runValidators: true })
-    .then((user) => {
-      if (user) {
-        return res.send({ user });
-      }
-      throw new NotFoundError('Пользователь с указанным _id не найден');
-    })
+    .then(handleUserNotFound)
+    .then((user) => res.send({ user }))
     .catch(next);
 }
 
@@ -80,12 +79,8 @@ function updateUserAvatar(req, res, next) {
   const { userId } = req.user;
 
   User.findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
-    .then((user) => {
-      if (user) {
-        return res.send({ user });
-      }
-      throw new NotFoundError('Пользователь с указанным _id не найден');
-    })
+    .then(handleUserNotFound)
+    .then((user) => res.send({ user }))
     .catch(next);
 }
 
@@ -111,12 +106,9 @@ function login(req, res, next) {
 
 function getCurrentUser(req, res, next) {
   const { userId } = req.user;
-  User.findById(userId).then((user) => {
-    // возвращаем пользователя, если он есть
-    if (user) return res.send({ user });
-
-    throw new NotFoundError('Пользователь с указанным _id не найден');
-  })
+  User.findById(userId)
+    .then(handleUserNotFound)
+    .then((user) => res.send({ user }))
     .catch(next);
 }
 
