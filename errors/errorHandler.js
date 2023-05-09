@@ -1,4 +1,4 @@
-module.exports = (err, _, res, next) => {
+module.exports = (err, _, res) => {
   if (err.name === 'CastError' || err.name === 'ValidationError') {
     const { statusCode = 400 } = err;
     return res.status(statusCode).send({ message: 'Переданы некорректные данные' });
@@ -14,5 +14,5 @@ module.exports = (err, _, res, next) => {
   }
 
   const { statusCode = 500 } = err;
-  return next(res.status(statusCode).send({ message: 'На сервере произошла ошибка' }));
+  return res.status(statusCode).send({ message: 'На сервере произошла ошибка' });
 };
