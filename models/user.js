@@ -28,8 +28,6 @@ const userSchema = new Schema(
       type: String,
       required: true,
       select: false,
-      minlength: 8,
-      message: 'Пароль должен быть не менее 8 символов',
     },
 
     about: {
