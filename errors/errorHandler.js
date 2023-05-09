@@ -1,4 +1,4 @@
-module.exports = (err, _, res) => {
+module.exports = (err, _, res, next) => {
   if (err.name === 'CastError' || err.name === 'ValidationError') {
     const { statusCode = 400 } = err;
     return res.status(statusCode).send({ message: 'Переданы некорректные данные' });
@@ -15,4 +15,7 @@ module.exports = (err, _, res) => {
 
   const { statusCode = 500 } = err;
   return res.status(statusCode).send({ message: 'На сервере произошла ошибка' });
+
+  // eslint-disable-next-line no-unreachable
+  next();
 };
